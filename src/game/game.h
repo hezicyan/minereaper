@@ -15,23 +15,24 @@ struct Coord {
 class Game {
  private:
   class Board;
-  struct Cell;
 
   Board* board_;
   int benchmark_value_, step_count_;
 
  public:
+  struct Cell;
+
   Game();
   ~Game();
   void Setup(const int& n, const int& m, const int& mine);
-  bool Reveal(const Coord& pos);
   bool CheckWin() const;
+  bool Reveal(const Coord& pos);
 
-  int row();
-  int col();
+  int row() const;
+  int col() const;
 
-  int CalcIoe();
-  Cell GetCell(const Coord& pos);
+  int CalcIoe() const;
+  Cell GetCell(const Coord& pos) const;
 };
 
 struct Game::Cell {
@@ -56,8 +57,11 @@ class Game::Board {
  public:
   Board(const int& n, const int& m, const int& mine);
   ~Board();
-  bool Reveal(const Coord& pos);
   bool CheckWin() const;
+  bool Reveal(const Coord& pos);
+
+  int row() const;
+  int col() const;
 };
 
 }  // namespace game
