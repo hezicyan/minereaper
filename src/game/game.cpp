@@ -17,18 +17,11 @@ int Game::col() const { return board_->col(); }
 void Game::Setup(const int& n, const int& m, const int& mine) {
   delete board_;
   board_ = new Board(n, m, mine);
-  benchmark_value_ = 0;
-  step_count_ = 0;
 }
 bool Game::CheckWin() const { return board_->CheckWin(); }
-double Game::CalcIoe() const { return (double)benchmark_value_ / step_count_; }
+double Game::CalcIoe() const { return board_->CalcIoe(); }
 
-bool Game::Reveal(const Coord& pos) {
-  auto ret = board_->Reveal(pos);
-  ++step_count_;
-  if (ret.second) ++benchmark_value_;
-  return ret.first;
-}
+bool Game::Reveal(const Coord& pos) { return board_->Reveal(pos); }
 
 Game::Cell Game::GetCell(const Coord& pos) const {
   return board_->GetCell(pos);

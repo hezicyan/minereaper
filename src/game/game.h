@@ -14,11 +14,11 @@ struct Coord {
 };
 
 class Game {
+  // TODO: add info print functions
+
  private:
   class Board;
-
   Board* board_;
-  int benchmark_value_, step_count_;
 
  public:
   struct Cell;
@@ -53,9 +53,10 @@ class Game::Board {
   const int n_, m_, mine_;
   Map* map_;
   int cells_left_;
+  int cur_3bv_, tot_3bv_, step_count_;
 
   void LayMines();
-  int Calc3bv() const;
+  void Calc3bv() const;
 
  public:
   Board(const int& n, const int& m, const int& mine);
@@ -63,9 +64,14 @@ class Game::Board {
 
   int row() const;
   int col() const;
+  int cur_3bv() const;
+  int tot_3bv() const;
+  int step_count() const;
 
   bool CheckWin() const;
-  std::pair<bool, bool> Reveal(const Coord& pos);
+  double CalcIoe() const;
+
+  bool Reveal(const Coord& pos);
   Cell GetCell(const Coord& pos) const;
 };
 
