@@ -6,6 +6,9 @@
 
 namespace game {
 
+const int kAdjDirCount = 4;
+const int kAdjDir[kAdjDirCount][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
 struct Coord {
  public:
   const int x, y;
@@ -58,6 +61,10 @@ class Game::Board {
   void LayMines();
   void Calc3bv() const;
 
+  bool HasAdjOp(const Coord& pos) const;
+  bool IsValidCoord(const Coord& pos) const;
+  void CheckCoord(const Coord& pos) const;
+
  public:
   Board(const int& n, const int& m, const int& mine);
   ~Board();
@@ -73,6 +80,7 @@ class Game::Board {
 
   bool Reveal(const Coord& pos);
   Cell GetCell(const Coord& pos) const;
+  std::vector<Cell> GetAdjCells(const Coord& pos) const;
 };
 
 }  // namespace game
