@@ -31,7 +31,7 @@ class Game {
   int row() const;
   int col() const;
 
-  int CalcIoe() const;
+  double CalcIoe() const;
   Cell GetCell(const Coord& pos) const;
 };
 
