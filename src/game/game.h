@@ -5,6 +5,12 @@
 
 namespace game {
 
+class Coord {
+  const int x, y;
+  Coord(const int& x, const int& y);
+  ~Coord();
+};
+
 class Game {
  private:
   class Board;
@@ -12,18 +18,11 @@ class Game {
   Board* board;
 
  public:
-  class Coord;
-  Game() {}
-  ~Game() {}
+  Game();
+  ~Game();
   void Setup(const int& n, const int& m);
   bool Reveal(const Coord& pos);
   bool CheckWin() const;
-};
-
-class Game::Coord {
-  const int x, y;
-  Coord(const int& x, const int& y);
-  ~Coord();
 };
 
 class Game::Board {
@@ -35,10 +34,11 @@ class Game::Board {
   Map* mp;
   int step_count, cell_left;
 
+  void Laymine();
+
  public:
   Board(const int& n, const int& m);
   ~Board();
-  void Laymine();
   bool Reveal(const Coord& pos);
   bool CheckWin() const;
 };
@@ -49,7 +49,7 @@ class Game::Board::Cell {
   bool revealed;
 
  public:
-  Cell();
+  Cell(const int& number);
   ~Cell();
 };
 
