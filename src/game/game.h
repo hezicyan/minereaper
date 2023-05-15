@@ -1,6 +1,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include <utility>
 #include <vector>
 
 namespace game {
@@ -50,10 +51,11 @@ class Game::Board {
   using Map = std::vector<std::vector<Cell>>;
 
   const int n_, m_, mine_;
-  Map* mp_;
-  int cell_left_;
+  Map* map_;
+  int cells_left_;
 
-  void Laymine();
+  void LayMines();
+  int Calc3bv() const;
 
  public:
   Board(const int& n, const int& m, const int& mine);
@@ -63,7 +65,7 @@ class Game::Board {
   int col() const;
 
   bool CheckWin() const;
-  bool Reveal(const Coord& pos);
+  std::pair<bool, bool> Reveal(const Coord& pos);
   Cell GetCell(const Coord& pos) const;
 };
 

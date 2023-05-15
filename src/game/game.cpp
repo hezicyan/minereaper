@@ -24,9 +24,10 @@ bool Game::CheckWin() const { return board_->CheckWin(); }
 double Game::CalcIoe() const { return (double)benchmark_value_ / step_count_; }
 
 bool Game::Reveal(const Coord& pos) {
-  // TODO: calculate benchmark value
+  auto ret = board_->Reveal(pos);
   ++step_count_;
-  return board_->Reveal(pos);
+  if (ret.second) ++benchmark_value_;
+  return ret.first;
 }
 
 Game::Cell Game::GetCell(const Coord& pos) const {
