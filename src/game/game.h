@@ -24,14 +24,15 @@ class Game {
 
   Game();
   ~Game();
-  void Setup(const int& n, const int& m, const int& mine);
-  bool CheckWin() const;
-  bool Reveal(const Coord& pos);
 
   int row() const;
   int col() const;
 
+  void Setup(const int& n, const int& m, const int& mine);
+  bool CheckWin() const;
   double CalcIoe() const;
+
+  bool Reveal(const Coord& pos);
   Cell GetCell(const Coord& pos) const;
 };
 
@@ -57,11 +58,13 @@ class Game::Board {
  public:
   Board(const int& n, const int& m, const int& mine);
   ~Board();
-  bool CheckWin() const;
-  bool Reveal(const Coord& pos);
 
   int row() const;
   int col() const;
+
+  bool CheckWin() const;
+  bool Reveal(const Coord& pos);
+  Cell GetCell(const Coord& pos) const;
 };
 
 }  // namespace game
