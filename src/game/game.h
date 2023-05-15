@@ -5,7 +5,8 @@
 
 namespace game {
 
-class Coord {
+struct Coord {
+ public:
   const int x, y;
   Coord(const int& x, const int& y);
   ~Coord();
@@ -14,43 +15,49 @@ class Coord {
 class Game {
  private:
   class Board;
+  struct Cell;
 
-  Board* board;
+  Board* board_;
+  int benchmark_value_, step_count_;
 
  public:
   Game();
   ~Game();
-  void Setup(const int& n, const int& m);
+  void Setup(const int& n, const int& m, const int& mine);
   bool Reveal(const Coord& pos);
   bool CheckWin() const;
+
+  int row();
+  int col();
+
+  int CalcIoe();
+  Cell GetCell(const Coord& pos);
+};
+
+struct Game::Cell {
+ public:
+  const int number;
+  bool revealed;
+
+  Cell(const int& number);
+  ~Cell();
 };
 
 class Game::Board {
  private:
-  class Cell;
   using Map = std::vector<std::vector<Cell>>;
 
-  const int n, m;
-  Map* mp;
-  int step_count, cell_left;
+  const int n_, m_, mine_;
+  Map* mp_;
+  int cell_left_;
 
   void Laymine();
 
  public:
-  Board(const int& n, const int& m);
+  Board(const int& n, const int& m, const int& mine);
   ~Board();
   bool Reveal(const Coord& pos);
   bool CheckWin() const;
-};
-
-class Game::Board::Cell {
- private:
-  const int number;
-  bool revealed;
-
- public:
-  Cell(const int& number);
-  ~Cell();
 };
 
 }  // namespace game
