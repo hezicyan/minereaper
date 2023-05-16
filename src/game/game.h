@@ -9,9 +9,8 @@
 namespace game {
 
 using Dirs = std::vector<std::pair<int, int>>;
-const Dirs kDirAdjacent = {{-1, 0}, {0, -1}, {0, 1}, {1, 0}};
-const Dirs kDirAround = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
-                         {0, 1},   {1, -1}, {1, 0},  {1, 1}};
+const Dirs kAdjDirs = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
+                       {0, 1},   {1, -1}, {1, 0},  {1, 1}};
 
 struct Coord {
  public:
@@ -65,7 +64,7 @@ class Game::Board {
   template <typename T>
   static void Shuffle(std::vector<T>& vec);
   void ExecuteConnected(const Coord& start_pos, const Dirs& dirs,
-                        const std::function<void(Coord&)>& f);
+                        const std::function<bool(const Coord&)>& f);
   void LayMines();
   void Calc3bv();
 

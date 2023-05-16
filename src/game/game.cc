@@ -14,15 +14,17 @@ Coord::~Coord() {}
 // end implementation of Coord
 
 // implementation of Game
-Game::Game() {}
+Game::Game() { board_ = nullptr; }
 Game::~Game() { delete board_; }
 
 int Game::row() const { return board_->row(); }
 int Game::col() const { return board_->col(); }
 
 void Game::Setup(const int& n, const int& m, const int& mine) {
+  std::cerr << "START SETUP: " << n << 'x' << m << ' ' << mine << std::endl;
   delete board_;
   board_ = new Board(n, m, mine);
+  std::cerr << "END SETUP" << std::endl;
 }
 bool Game::CheckWin() const { return board_->CheckWin(); }
 double Game::CalcIoe() const { return board_->CalcIoe(); }
@@ -65,7 +67,8 @@ void Game::Board::Shuffle(std::vector<T>& vec) {
 }
 
 void Game::Board::ExecuteConnected(const Coord& start_pos, const Dirs& dirs,
-                                   const std::function<void(Coord&)>& f) {
+                                   const std::function<bool(const Coord&)>& f) {
+  f(start_pos);
   std::queue<Coord> q;
   q.push(start_pos);
   while (!q.empty()) {
@@ -78,13 +81,14 @@ void Game::Board::ExecuteConnected(const Coord& start_pos, const Dirs& dirs,
       if (!IsValidCoord(c)) continue;
       auto& cell = map_[dx][dy];
       if (cell.revealed) continue;
-      f(c);
+      if (f(c)) continue;
       if (cell.number == 0) q.push(c);
     }
   }
 }
 
 void Game::Board::LayMines() {
+  std::cerr << "START LAY MINES" << std::endl;
   auto encode = [this](int x, int y) -> int { return x * m_ + y; };
 
   std::vector<bool> is_mine(n_ * m_, false);
@@ -102,7 +106,7 @@ void Game::Board::LayMines() {
         row.push_back(Cell(9));
       } else {
         int cnt = 0;
-        for (auto p : kDirAround) {
+        for (auto p : kAdjDirs) {
           int dx = i + p.first;
           int dy = j + p.second;
           if (!IsValidCoord(Coord(dx, dy))) continue;
@@ -113,10 +117,13 @@ void Game::Board::LayMines() {
       }
     }
   }
+  std::cerr << "END LAY MINES" << std::endl;
 }
 
 void Game::Board::Calc3bv() {
+  std::cerr << "START CALC 3BV" << std::endl;
   std::vector<std::vector<bool>> vis(n_, std::vector<bool>(m_, false));
+  tot_3bv_ = 0;
   for (int i = 0; i < n_; ++i) {
     for (int j = 0; j < m_; ++j) {
       if (vis[i][j]) continue;
@@ -124,20 +131,25 @@ void Game::Board::Calc3bv() {
       auto cell = GetCell(pos);
       if (cell.number == 0) {
         ++tot_3bv_;
-        ExecuteConnected(pos, kDirAdjacent,
-                         [&vis](Coord& p) -> void { vis[p.x][p.y] = true; });
+        ExecuteConnected(pos, kAdjDirs, [&vis](const Coord& p) -> bool {
+          if (vis[p.x][p.y]) return true;
+          vis[p.x][p.y] = true;
+          return false;
+        });
       } else if (cell.number != 9 && !HasOpAround(pos)) {
         ++tot_3bv_;
       }
+      std::fprintf(stderr, "COORD (%d, %d): %d\n", i, j, tot_3bv_);
     }
   }
+  std::cerr << "END CALC 3BV" << std::endl;
 }
 
 bool Game::Board::HasOpAround(const Coord& pos) const {
   CheckCoord(pos);
   auto adj_cells = GetCellsAround(pos);
   for (const auto& cell : adj_cells) {
-    if (cell.number == 0) return false;
+    if (cell.number == 0) return true;
   }
   return false;
 }
@@ -164,8 +176,9 @@ bool Game::Board::Reveal(const Coord& pos) {
   ++step_count_;
   if (cell.number == 0) {
     ++cur_3bv_;
-    ExecuteConnected(pos, kDirAdjacent, [this](Coord& p) -> void {
+    ExecuteConnected(pos, kAdjDirs, [this](const Coord& p) -> bool {
       map_[p.x][p.y].revealed = true;
+      return false;
     });
   } else if (!HasOpAround(pos)) {
     ++cur_3bv_;
@@ -182,7 +195,7 @@ std::vector<Game::Cell> Game::Board::GetCellsAround(const Coord& pos) const {
   CheckCoord(pos);
   std::vector<Cell> res;
   res.push_back(GetCell(pos));
-  for (auto p : kDirAround) {
+  for (auto p : kAdjDirs) {
     auto dir_pos = Coord(pos.x + p.first, pos.y + p.second);
     if (IsValidCoord(dir_pos)) {
       res.push_back(GetCell(dir_pos));
@@ -192,6 +205,7 @@ std::vector<Game::Cell> Game::Board::GetCellsAround(const Coord& pos) const {
 }
 
 void Game::Board::PrintBoard(std::ostream& out) const {
+  out << std::endl;
   out << n_ << 'x' << m_ << ' ' << mine_ << ' ' << cells_left_ << std::endl;
   out << cur_3bv_ << '/' << tot_3bv_ << ' ' << step_count_ << std::endl;
   out << "IOE: " << CalcIoe() << std::endl;
@@ -202,5 +216,26 @@ void Game::Board::PrintBoard(std::ostream& out) const {
     out << std::endl;
   }
   out << std::endl;
+  for (int i = 0; i < n_; ++i) {
+    for (int j = 0; j < m_; ++j) {
+      if (map_[i][j].number == 9) {
+        out << '*';
+      } else {
+        out << map_[i][j].number;
+      }
+    }
+    out << std::endl;
+  }
+  out << std::endl;
+  for (int i = 0; i < n_; ++i) {
+    for (int j = 0; j < m_; ++j) {
+      if (map_[i][j].revealed) {
+        out << map_[i][j].number;
+      } else {
+        out << "?";
+      }
+    }
+    out << std::endl;
+  }
 }
 // end implementation of Game::Board
