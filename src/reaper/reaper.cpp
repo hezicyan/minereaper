@@ -4,6 +4,10 @@
 
 using namespace reaper;
 
+Reaper::Reaper(game::Game* game) : game_(game) {}
+
+Reaper::~Reaper() {}
+
 bool Reaper::IsValidCoord(const game::Coord& pos) {
   return pos.x >= 0 && pos.x < n_ && pos.y >= 0 && pos.y < n_;
 }
@@ -63,9 +67,7 @@ void Reaper::Dfs(int t) {
   Dfs(t + 1);
 }
 
-std::vector<std::vector<double>> Reaper::GetPossibility(
-    const game::Game* game) {
-  game_ = game;
+std::vector<std::vector<double>> Reaper::GetPossibility() {
   vis_ = std::vector<std::vector<bool>>(n_, std::vector<bool>(m_, false));
   mines_.clear();
 
@@ -73,7 +75,7 @@ std::vector<std::vector<double>> Reaper::GetPossibility(
   for (int i = 0; i < n_; i++) {
     for (int j = 0; j < m_; j++) {
       if (vis_[i][j]) continue;
-      auto now = game->GetCell(game::Coord(i, j));
+      auto now = game_->GetCell(game::Coord(i, j));
       if (now.revealed && now.number != 9) {
         tot_situations_ = 0;
         blocks_.clear();

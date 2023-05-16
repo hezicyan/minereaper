@@ -7,7 +7,7 @@ namespace reaper {
 
 class Reaper {
  private:
-  const game::Game* game_;
+  game::Game* const game_;
   int n_, m_, tot_situations_;
   std::vector<std::vector<int>> cnt_, tot_;
   std::vector<std::vector<bool>> vis_;
@@ -18,9 +18,11 @@ class Reaper {
   void GetBlock(int x, int y);
   void Dfs(int t);
   bool IsValidCoord(const game::Coord& pos);
+  std::vector<std::vector<double>> GetPossibility();
 
  public:
-  std::vector<std::vector<double>> GetPossibility(const game::Game* game);
+  Reaper(game::Game* game);
+  ~Reaper();
 };
 
 }  // namespace reaper
