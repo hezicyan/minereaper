@@ -28,9 +28,10 @@ class Reaper {
   std::vector<std::vector<double>> GetPossibility();
 
  public:
-  void Print();
   Reaper(game::Game* game);
   ~Reaper();
+
+  void Print();
 
   game::Coord GetNextStep();
   void DoNextStep();
