@@ -62,7 +62,7 @@ void Game::Board::Shuffle(std::vector<T>& vec) {
 }
 
 void Game::Board::ExecuteConnected(const Coord& start_pos,
-                                   const std::function<void(Cell&)>& f) {
+                                   const std::function<void(Coord&)>& f) {
   std::queue<Coord> q;
   q.push(start_pos);
   while (!q.empty()) {
@@ -75,7 +75,7 @@ void Game::Board::ExecuteConnected(const Coord& start_pos,
       if (!IsValidCoord(c)) continue;
       auto& cell = map_[dx][dy];
       if (cell.revealed) continue;
-      f(cell);
+      f(c);
       if (cell.number == 0) q.push(c);
     }
   }
@@ -112,8 +112,22 @@ void Game::Board::LayMines() {
   }
 }
 
-void Game::Board::Calc3bv() const {
-  // TODO: implement Calc3bv function
+void Game::Board::Calc3bv() {
+  std::vector<std::vector<bool>> vis(n_, std::vector<bool>(m_, false));
+  for (int i = 0; i < n_; ++i) {
+    for (int j = 0; j < m_; ++j) {
+      if (vis[i][j]) continue;
+      auto pos = Coord(i, j);
+      auto cell = GetCell(pos);
+      if (cell.number == 0) {
+        ++tot_3bv_;
+        ExecuteConnected(pos,
+                         [&vis](Coord& p) -> void { vis[p.x][p.y] = true; });
+      } else if (cell.number != 9 && !HasAdjOp(pos)) {
+        ++tot_3bv_;
+      }
+    }
+  }
 }
 
 bool Game::Board::HasAdjOp(const Coord& pos) const {
@@ -147,7 +161,8 @@ bool Game::Board::Reveal(const Coord& pos) {
   ++step_count_;
   if (cell.number == 0) {
     ++cur_3bv_;
-    ExecuteConnected(pos, [](Cell& c) -> void { c.revealed = true; });
+    ExecuteConnected(
+        pos, [this](Coord& p) -> void { map_[p.x][p.y].revealed = true; });
   } else if (!HasAdjOp(pos)) {
     ++cur_3bv_;
   }

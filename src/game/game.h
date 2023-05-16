@@ -62,9 +62,9 @@ class Game::Board {
   template <typename T>
   static void Shuffle(std::vector<T>& vec);
   void ExecuteConnected(const Coord& start_pos,
-                        const std::function<void(Cell&)>& f);
+                        const std::function<void(Coord&)>& f);
   void LayMines();
-  void Calc3bv() const;
+  void Calc3bv();
 
   bool HasAdjOp(const Coord& pos) const;
   bool IsValidCoord(const Coord& pos) const;
