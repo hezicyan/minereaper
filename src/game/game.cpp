@@ -102,6 +102,7 @@ void Game::Board::LayMines() {
         for (int k = 0; k < kAdjDirCount; ++k) {
           int dx = i + kAdjDir[k][0];
           int dy = j + kAdjDir[k][1];
+          if (!IsValidCoord(Coord(dx, dy))) continue;
           int loc = encode(dx, dy);
           if (is_mine[loc]) ++cnt;
         }
