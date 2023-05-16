@@ -5,6 +5,10 @@
 
 namespace reaper {
 
+const double kEps = 1e-6;
+
+int Sign(double x);
+
 class Reaper {
  private:
   game::Game* const game_;
@@ -15,15 +19,21 @@ class Reaper {
   std::vector<game::Coord> blocks_;
   std::vector<int> mines_;
 
+  bool IsValidCoord(const game::Coord& pos) const;
+  bool OnCorner(const game::Coord& pos) const;
+  bool OnBorder(const game::Coord& pos) const;
+
   void GetBlock(int x, int y);
   void Dfs(int t);
-  bool IsValidCoord(const game::Coord& pos);
   std::vector<std::vector<double>> GetPossibility();
 
  public:
   void Print();
   Reaper(game::Game* game);
   ~Reaper();
+
+  game::Coord GetNextStep();
+  void DoNextStep();
 };
 
 }  // namespace reaper

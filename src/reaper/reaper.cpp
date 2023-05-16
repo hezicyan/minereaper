@@ -8,6 +8,13 @@ Reaper::Reaper(game::Game* game) : game_(game) {
   n_ = game_->row();
   m_ = game_->col();
 }
+int Sign(double x) {
+  if (x > kEps) return 1;
+  if (x < -kEps) return -1;
+  return 0;
+}
+
+Reaper::Reaper(game::Game* game) : game_(game) {}
 
 Reaper::~Reaper() {}
 
