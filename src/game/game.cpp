@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include <algorithm>
+#include <queue>
 #include <random>
 #include <stdexcept>
 
@@ -60,6 +61,26 @@ void Game::Board::Shuffle(std::vector<T>& vec) {
   std::shuffle(vec.begin(), vec.end(), gen);
 }
 
+void Game::Board::ExecuteConnected(const Coord& start_pos,
+                                   const std::function<void(Cell&)>& f) {
+  std::queue<Coord> q;
+  q.push(start_pos);
+  while (!q.empty()) {
+    Coord pos = q.front();
+    q.pop();
+    for (int i = 0; i < kAdjDirCount; ++i) {
+      int dx = pos.x + kAdjDir[i][0];
+      int dy = pos.y + kAdjDir[i][1];
+      auto c = Coord(dx, dy);
+      if (!IsValidCoord(c)) continue;
+      auto& cell = map_[dx][dy];
+      if (cell.revealed) continue;
+      f(cell);
+      if (cell.number == 0) q.push(c);
+    }
+  }
+}
+
 void Game::Board::LayMines() {
   auto encode = [this](int x, int y) -> int { return x * m_ + y; };
 
@@ -117,8 +138,19 @@ bool Game::Board::CheckWin() const { return cells_left_ == mine_; }
 double Game::Board::CalcIoe() const { return (double)cur_3bv_ / step_count_; }
 
 bool Game::Board::Reveal(const Coord& pos) {
-  // TODO: implement cell revealing, step and 3bv accumulating
-  return false;
+  CheckCoord(pos);
+  auto& cell = map_[pos.x][pos.y];
+  if (cell.number == 9) return false;
+
+  cell.revealed = true;
+  ++step_count_;
+  if (cell.number == 0) {
+    ++cur_3bv_;
+    ExecuteConnected(pos, [](Cell& c) -> void { c.revealed = true; });
+  } else if (!HasAdjOp(pos)) {
+    ++cur_3bv_;
+  }
+  return true;
 }
 
 Game::Cell Game::Board::GetCell(const Coord& pos) const {

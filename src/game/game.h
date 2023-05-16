@@ -1,6 +1,7 @@
 #ifndef BOARD_H
 #define BOARD_H
 
+#include <functional>
 #include <utility>
 #include <vector>
 
@@ -60,6 +61,8 @@ class Game::Board {
 
   template <typename T>
   static void Shuffle(std::vector<T>& vec);
+  void ExecuteConnected(const Coord& start_pos,
+                        const std::function<void(Cell&)>& f);
   void LayMines();
   void Calc3bv() const;
 
