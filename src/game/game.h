@@ -2,6 +2,7 @@
 #define BOARD_H
 
 #include <functional>
+#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -20,8 +21,6 @@ struct Coord {
 };
 
 class Game {
-  // TODO: add info print functions
-
  private:
   class Board;
   Board* board_;
@@ -41,6 +40,8 @@ class Game {
 
   bool Reveal(const Coord& pos);
   Cell GetCell(const Coord& pos) const;
+
+  void PrintBoard(std::ostream& out = std::cerr) const;
 };
 
 struct Game::Cell {
@@ -88,6 +89,8 @@ class Game::Board {
   bool Reveal(const Coord& pos);
   Cell GetCell(const Coord& pos) const;
   std::vector<Cell> GetCellsAround(const Coord& pos) const;
+
+  void PrintBoard(std::ostream& out = std::cerr) const;
 };
 
 }  // namespace game

@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include <algorithm>
+#include <ostream>
 #include <queue>
 #include <random>
 #include <stdexcept>
@@ -30,6 +31,8 @@ bool Game::Reveal(const Coord& pos) { return board_->Reveal(pos); }
 Game::Cell Game::GetCell(const Coord& pos) const {
   return board_->GetCell(pos);
 }
+
+void Game::PrintBoard(std::ostream& out) const { board_->PrintBoard(out); }
 // end implementation of Game
 
 // implementation of Game::Cell
@@ -186,5 +189,18 @@ std::vector<Game::Cell> Game::Board::GetCellsAround(const Coord& pos) const {
     }
   }
   return res;
+}
+
+void Game::Board::PrintBoard(std::ostream& out) const {
+  out << n_ << 'x' << m_ << ' ' << mine_ << ' ' << cells_left_ << std::endl;
+  out << cur_3bv_ << '/' << tot_3bv_ << ' ' << step_count_ << std::endl;
+  out << "IOE: " << CalcIoe() << std::endl;
+  for (int i = 0; i < n_; ++i) {
+    for (int j = 0; j < m_; ++j) {
+      out << '(' << map_[i][j].number << ", " << map_[i][j].revealed << ") ";
+    }
+    out << std::endl;
+  }
+  out << std::endl;
 }
 // end implementation of Game::Board
