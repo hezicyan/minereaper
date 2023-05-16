@@ -1,63 +1,69 @@
-#include <game.h>
+#include "reaper.h"
 
-int cnt[20][20], tot[20][20];
-bool vis[20][20];
-double p[20][20];
-const int dx[] = {1, 0, -1, 0, 1, -1, 1, -1};
-const int dy[] = {0, 1, 0, -1, 1, -1, -1, 1};
-int n, m, sum;
-std::vector<std::pair<int, int>> mine; 
-std::vector<std::pair<int, int>> block;
-void dfs(const game::Game& game, int x, int y) {
-  if (x >= n) {
-    sum++;
-    for (auto u : mine) tot[u.first][u.second]++;
-    return; 
-  } 
-  if (vis[x][y]) return;
-  vis[x][y] = 1;
-  auto now = game.GetCell(game::Coord(x, y));
-  if (now.revealed) {
-    if (y == m - 1) dfs(game, x + 1, 0);
-    else dfs(game, x, y + 1);
+#include "../game/game.h"
+
+using namespace reaper;
+
+void Reaper::Dfs(int x, int y) {
+  if (x >= n_) {
+    ++tot_situations_;
+    for (auto u : mines_) ++tot_[u.x][u.y];
+    return;
   }
-  block.push_back(std::make_pair(x, y));
-  bool flag = 1;
-  for (int i = 0; i < 8; i++) {
-    int xx = x + dx[i], yy = y + dy[i];
-    if (xx >= 0 and xx < n and yy >= 0 and yy <= m) {
-      cnt[xx][yy]++;
-      auto nnow = game.GetCell(game::Coord(xx, yy));
-      if (cnt[xx][yy] > nnow.number) flag = 0;
+  if (vis_[x][y]) return;
+  vis_[x][y] = true;
+  auto goto_next = [x, y, this]() {
+    if (y == m_ - 1) {
+      Dfs(x + 1, 0);
+    } else {
+      Dfs(x, y + 1);
+    }
+  };
+  auto now = game_->GetCell(game::Coord(x, y));
+  if (now.revealed) goto_next();
+  blocks_.push_back(game::Coord(x, y));
+  bool flag = true;
+  for (auto p : game::kAdjDirs) {
+    int xx = x + p.first;
+    int yy = y + p.second;
+    if (xx >= 0 and xx < n_ and yy >= 0 and yy <= m_) {
+      cnt_[xx][yy]++;
+      auto nnow = game_->GetCell(game::Coord(xx, yy));
+      if (cnt_[xx][yy] > nnow.number) flag = 0;
     }
   }
-  mine.push_back(std::make_pair(x, y));
-  if (flag) {
-    if (y == m - 1) dfs(game, x + 1, 0);
-    else dfs(game, x, y + 1);
-  }
-  mine.back();
-  for (int i = 0; i < 8; i++) {
-    int xx = x + dx[i], yy = y + dy[i];
-    if (xx >= 0 and xx < n and yy >= 0 and yy <= m) {
-      cnt[xx][yy]--;
+  mines_.push_back(game::Coord(x, y));
+  if (flag) goto_next();
+  mines_.pop_back();
+  for (auto p : game::kAdjDirs) {
+    int xx = x + p.first;
+    int yy = y + p.second;
+    if (xx >= 0 and xx < n_ and yy >= 0 and yy <= m_) {
+      cnt_[xx][yy]--;
     }
   }
-  if (flag) {
-    if (y == m - 1) dfs(game, x + 1, 0);
-    else dfs(game, x, y + 1);
-  }
+  if (flag) goto_next();
 }
-void ai::GetPossibility(const game::Game& game) {
-  memset(cnt, 0, sizeof(cnt));
-  memset(vis, 0, sizeof(vis));
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < m; j++) {
-      if (vis[i][j]) continue;
-      sum = 0;
-      block.clear();
-      dfs(game, i, j);
-      for (auto u : block) p[u.first][u.second] = tot[u.first][u.second] * 1.0 / sum;
+
+std::vector<std::vector<double>> Reaper::GetPossibility(
+    const game::Game* game) {
+  game_ = game;
+  cnt_ = std::vector<std::vector<int>>(n_, std::vector<int>(m_, 0));
+  tot_ = std::vector<std::vector<int>>(n_, std::vector<int>(m_, 0));
+  vis_ = std::vector<std::vector<bool>>(n_, std::vector<bool>(m_, false));
+
+  std::vector<std::vector<double>> res(n_, std::vector<double>(m_, 0));
+  for (int i = 0; i < n_; i++) {
+    for (int j = 0; j < m_; j++) {
+      if (vis_[i][j]) continue;
+      tot_situations_ = 0;
+      blocks_.clear();
+      mines_.clear();
+      Dfs(i, j);
+      for (auto u : blocks_) {
+        res[u.x][u.y] = (double)tot_[u.x][u.y] / tot_situations_;
+      }
     }
   }
-} 
+  return res;
+}

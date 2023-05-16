@@ -58,7 +58,6 @@ class Game::Board {
 
   const int n_, m_, mine_;
   Map map_;
-  int cells_left_;
   int cur_3bv_, tot_3bv_, step_count_;
 
   template <typename T>

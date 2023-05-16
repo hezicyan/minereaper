@@ -45,7 +45,6 @@ Game::Cell::~Cell() {}
 // implementation of Game::Board
 Game::Board::Board(const int& n, const int& m, const int& mine)
     : n_(n), m_(m), mine_(mine) {
-  cells_left_ = n * m;
   cur_3bv_ = 0;
   step_count_ = 0;
   LayMines();
@@ -164,7 +163,16 @@ void Game::Board::CheckCoord(const Coord& pos) const {
   }
 }
 
-bool Game::Board::CheckWin() const { return cells_left_ == mine_; }
+bool Game::Board::CheckWin() const {
+  for (int i = 0; i < n_; ++i) {
+    for (int j = 0; j < m_; ++j) {
+      if (map_[i][j].number <= 8 && !map_[i][j].revealed) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
 double Game::Board::CalcIoe() const { return (double)cur_3bv_ / step_count_; }
 
 bool Game::Board::Reveal(const Coord& pos) {
@@ -206,7 +214,7 @@ std::vector<Game::Cell> Game::Board::GetCellsAround(const Coord& pos) const {
 
 void Game::Board::PrintBoard(std::ostream& out) const {
   out << std::endl;
-  out << n_ << 'x' << m_ << ' ' << mine_ << ' ' << cells_left_ << std::endl;
+  out << n_ << 'x' << m_ << ' ' << mine_ << std::endl;
   out << cur_3bv_ << '/' << tot_3bv_ << ' ' << step_count_ << std::endl;
   out << "IOE: " << CalcIoe() << std::endl;
   for (int i = 0; i < n_; ++i) {
