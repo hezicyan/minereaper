@@ -54,10 +54,12 @@ class Game::Board {
   using Map = std::vector<std::vector<Cell>>;
 
   const int n_, m_, mine_;
-  Map* map_;
+  Map map_;
   int cells_left_;
   int cur_3bv_, tot_3bv_, step_count_;
 
+  template <typename T>
+  static void Shuffle(std::vector<T>& vec);
   void LayMines();
   void Calc3bv() const;
 

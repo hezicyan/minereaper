@@ -1,5 +1,7 @@
 #include "game.h"
 
+#include <algorithm>
+#include <random>
 #include <stdexcept>
 
 using namespace game;
@@ -43,7 +45,7 @@ Game::Board::Board(const int& n, const int& m, const int& mine)
   LayMines();
   Calc3bv();
 }
-Game::Board::~Board() { delete map_; }
+Game::Board::~Board() {}
 
 int Game::Board::row() const { return n_; }
 int Game::Board::col() const { return m_; }
@@ -51,8 +53,41 @@ int Game::Board::cur_3bv() const { return cur_3bv_; }
 int Game::Board::tot_3bv() const { return tot_3bv_; }
 int Game::Board::step_count() const { return step_count_; }
 
+template <typename T>
+void Game::Board::Shuffle(std::vector<T>& vec) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::shuffle(vec.begin(), vec.end(), gen);
+}
+
 void Game::Board::LayMines() {
-  // TODO: implement LayMines function
+  auto encode = [this](int x, int y) -> int { return x * m_ + y; };
+
+  std::vector<bool> is_mine(n_ * m_, false);
+  std::fill_n(is_mine.begin(), mine_, true);
+  Shuffle(is_mine);
+
+  map_.clear();
+  map_.resize(n_);
+  for (int i = 0; i < n_; ++i) {
+    auto& row = map_[i];
+    row.reserve(m_);
+    for (int j = 0; j < m_; ++j) {
+      int cur = encode(i, j);
+      if (is_mine[cur]) {
+        row.push_back(Cell(9));
+      } else {
+        int cnt = 0;
+        for (int k = 0; k < kAdjDirCount; ++k) {
+          int dx = i + kAdjDir[k][0];
+          int dy = j + kAdjDir[k][1];
+          int loc = encode(dx, dy);
+          if (is_mine[loc]) ++cnt;
+        }
+        row.push_back(Cell(cnt));
+      }
+    }
+  }
 }
 
 void Game::Board::Calc3bv() const {
@@ -88,7 +123,7 @@ bool Game::Board::Reveal(const Coord& pos) {
 
 Game::Cell Game::Board::GetCell(const Coord& pos) const {
   CheckCoord(pos);
-  return (*map_)[pos.x][pos.y];
+  return map_[pos.x][pos.y];
 }
 
 std::vector<Game::Cell> Game::Board::GetAdjCells(const Coord& pos) const {
