@@ -1,15 +1,36 @@
 #include "reaper.h"
 
+#include <random>
+#include <stdexcept>
+
 #include "../game/game.h"
 
 using namespace reaper;
+
+int Sign(double x) {
+  if (x > kEps) return 1;
+  if (x < -kEps) return -1;
+  return 0;
+}
 
 Reaper::Reaper(game::Game* game) : game_(game) {}
 
 Reaper::~Reaper() {}
 
-bool Reaper::IsValidCoord(const game::Coord& pos) {
+bool Reaper::IsValidCoord(const game::Coord& pos) const {
   return pos.x >= 0 && pos.x < n_ && pos.y >= 0 && pos.y < n_;
+}
+
+bool Reaper::OnCorner(const game::Coord& pos) const {
+  bool dx = pos.x == 0 || pos.x == n_ - 1;
+  bool dy = pos.y == 0 || pos.y == m_ - 1;
+  return dx && dy;
+}
+
+bool Reaper::OnBorder(const game::Coord& pos) const {
+  bool dx = pos.x == 0 || pos.x == n_ - 1;
+  bool dy = pos.y == 0 || pos.y == m_ - 1;
+  return dx || dy;
 }
 
 void Reaper::GetBlock(int x, int y) {
@@ -91,4 +112,41 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
     }
   }
   return res;
+}
+
+game::Coord Reaper::GetNextStep() {
+  auto p = GetPossibility();
+  std::vector<game::Coord> cand;
+  double mn = 1;
+  for (int i = 0; i < n_; ++i) {
+    for (int j = 0; j < m_; ++j) {
+      if (Sign(p[i][j]) == 0) return game::Coord(i, j);
+      int v = Sign(p[i][j] - mn);
+      if (v == 1) continue;
+      if (v == -1) {
+        mn = p[i][j];
+        cand.clear();
+      }
+      cand.push_back(game::Coord(i, j));
+    }
+  }
+
+  for (auto p : cand) {
+    if (OnCorner(p)) return p;
+  }
+  for (auto p : cand) {
+    if (OnBorder(p)) return p;
+  }
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  int idx = gen() % cand.size();
+  return cand[idx];
+}
+
+void Reaper::DoNextStep() {
+  auto pos = GetNextStep();
+  bool ret = game_->Reveal(pos);
+  if (!ret) {
+    throw std::logic_error("Trying to reveal a mine cell.");
+  }
 }
