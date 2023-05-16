@@ -7,8 +7,10 @@
 
 namespace game {
 
-const int kAdjDirCount = 4;
-const int kAdjDir[kAdjDirCount][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+using Dirs = std::vector<std::pair<int, int>>;
+const Dirs kDirAdjacent = {{-1, 0}, {0, -1}, {0, 1}, {1, 0}};
+const Dirs kDirAround = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
+                         {0, 1},   {1, -1}, {1, 0},  {1, 1}};
 
 struct Coord {
  public:
@@ -61,12 +63,12 @@ class Game::Board {
 
   template <typename T>
   static void Shuffle(std::vector<T>& vec);
-  void ExecuteConnected(const Coord& start_pos,
+  void ExecuteConnected(const Coord& start_pos, const Dirs& dirs,
                         const std::function<void(Coord&)>& f);
   void LayMines();
   void Calc3bv();
 
-  bool HasAdjOp(const Coord& pos) const;
+  bool HasOpAround(const Coord& pos) const;
   bool IsValidCoord(const Coord& pos) const;
   void CheckCoord(const Coord& pos) const;
 
@@ -85,7 +87,7 @@ class Game::Board {
 
   bool Reveal(const Coord& pos);
   Cell GetCell(const Coord& pos) const;
-  std::vector<Cell> GetAdjCells(const Coord& pos) const;
+  std::vector<Cell> GetCellsAround(const Coord& pos) const;
 };
 
 }  // namespace game
