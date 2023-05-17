@@ -160,8 +160,8 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
       if (res[i][j] > 1.0) pp++, res[i][j] = 1.0 * tot_mines / tot_unreavealed;
     }
   }
-  // std::cout << totmines << std::endl;
-  // std::cout << pp << " " << totunreveal << std::endl;
+  std::cout << tot_mines << std::endl;
+  std::cout << pp << " " << tot_unreavealed << std::endl;
   return res;
 }
 
@@ -184,6 +184,8 @@ game::Coord Reaper::GetNextStep() {
   double mn = 1;
   for (int i = 0; i < n_; ++i) {
     for (int j = 0; j < m_; ++j) {
+      auto now = game_->GetCell(game::Coord(i, j));
+      if (now.revealed) continue;
       if (Sign(p[i][j]) == 0) return game::Coord(i, j);
       int v = Sign(p[i][j] - mn);
       if (v == 1) continue;
