@@ -2,7 +2,9 @@
 #include <string.h>
 
 #include <fstream>
+#include <iomanip>
 #include <iostream>
+#include <stdexcept>
 
 #include "game/game.h"
 #include "reaper/reaper.h"
@@ -19,7 +21,6 @@ void ShowHelp(int code = 0) {
 }
 
 void ShowVersion() {
-  // TODO: version page
   std::ifstream ver("../VERSION");
   if (ver.fail()) {
     std::cerr << "No VERSION file exsits" << std::endl;
@@ -30,6 +31,36 @@ void ShowVersion() {
     std::cout << line << std::endl;
   }
   exit(0);
+}
+
+void Test(int n, int m, int mine, int cases) {
+  game::Game* game = new game::Game();
+  reaper::Reaper* reaper;
+  int win = 0;
+  double ioe = 0;
+
+  for (int i = 1; i <= cases; ++i) {
+    std::cout << "CASE " << i << "/" << cases << ": ";
+    game->Setup(n, m, mine);
+    reaper = new reaper::Reaper(game);
+    try {
+      while (!game->CheckWin()) {
+        reaper->DoNextStep();
+      }
+      auto x = game->CalcIoe();
+      std::cout << "WON with IOE " << x << std::endl;
+      ++win;
+      ioe += x;
+    } catch (std::logic_error) {
+      std::cout << "FAILED" << std::endl;
+    }
+  }
+
+  std::cout << std::setprecision(2);
+  std::cout << "AVERAGE WINNING: " << 100.0 * win / cases << "%" << std::endl;
+  std::cout << "AVERAGE IOE: " << ioe / win << std::endl;
+  delete game;
+  delete reaper;
 }
 
 int main(int argc, char** argv) {
@@ -60,6 +91,6 @@ int main(int argc, char** argv) {
     ShowHelp(22);
   }
 
-  std::cout << n << ' ' << m << ' ' << mine << ' ' << cases << std::endl;
+  Test(n, m, mine, cases);
   return 0;
 }
