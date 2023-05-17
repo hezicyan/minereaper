@@ -4,12 +4,16 @@
 
 using namespace reaper;
 
+Reaper::Reaper(game::Game* game) : game_(game) {
+  n_ = game_->row();
+  m_ = game_->col();
+}
+
 int reaper::Sign(double x) {
   if (x > kEps) return 1;
   if (x < -kEps) return -1;
   return 0;
 }
-
 
 Reaper::~Reaper() {}
 
@@ -104,11 +108,14 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
   vis_ = std::vector<std::vector<bool>>(n_, std::vector<bool>(m_, false));
   // std::cerr << "--------------------------------" << std::endl;
   std::vector<std::vector<double>> res(n_, std::vector<double>(m_, 100.0));
-  int totunreveal = n_ * m_;
+  int totunreveal = n_ * m_, totmines = game_->mine_count();
   for (int i = 0; i < n_; i++) {
     for (int j = 0; j < m_; j++) {
       auto now = game_->GetCell(game::Coord(i, j));
-      if (now.revealed and now.number != 9) totunreveal--;
+      if (now.revealed and now.number != 9) {
+        totunreveal--;
+        res[i][j] = 0.0;
+      }
       if (vis_[i][j]) continue;
       if (now.revealed && now.number != 9) {
         // std::cout << i << " " << j << std::endl;
@@ -126,11 +133,20 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
         // std::cout << tot_situations_ << std::endl;
         // std::cout << blocksize << std::endl;
         for (auto u : borders_) {
+          if (tot_[u.x][u.y] == tot_situations_) totmines--;
           res[u.x][u.y] = (double)tot_[u.x][u.y] / tot_situations_;
         }
       }
     }
   }
+  int pp = 0;
+  for (int i = 0; i < n_; i++) {
+    for (int j = 0; j < m_; j++) {
+      if (res[i][j] > 1.0) pp++, res[i][j] = 1.0 * totmines / totunreveal; 
+    }
+  }
+  // std::cout << totmines << std::endl;
+  // std::cout << pp << " " << totunreveal << std::endl;
   return res;
 }
 
