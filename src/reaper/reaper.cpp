@@ -23,6 +23,18 @@ bool Reaper::IsValidCoord(const game::Coord& pos) const {
   return pos.x >= 0 && pos.x < n_ && pos.y >= 0 && pos.y < m_;
 }
 
+bool Reaper::OnCorner(const game::Coord& pos) const {
+  bool dx = pos.x == 0 || pos.x == n_ - 1;
+  bool dy = pos.y == 0 || pos.y == m_ - 1;
+  return dx && dy;
+}
+
+bool Reaper::OnBorder(const game::Coord& pos) const {
+  bool dx = pos.x == 0 || pos.x == n_ - 1;
+  bool dy = pos.y == 0 || pos.y == m_ - 1;
+  return dx || dy;
+}
+
 void Reaper::GetBlock(int x, int y) {
   if (vis_[x][y]) return;
   vis_[x][y] = true;
