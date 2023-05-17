@@ -4,11 +4,7 @@
 
 using namespace reaper;
 
-Reaper::Reaper(game::Game* game) : game_(game) {
-  n_ = game_->row();
-  m_ = game_->col();
-}
-int Sign(double x) {
+int reaper::Sign(double x) {
   if (x > kEps) return 1;
   if (x < -kEps) return -1;
   return 0;
@@ -20,6 +16,7 @@ Reaper::~Reaper() {}
 bool Reaper::IsValidCoord(const game::Coord& pos) const {
   return pos.x >= 0 && pos.x < n_ && pos.y >= 0 && pos.y < m_;
 }
+
 int blocksize;
 void Reaper::GetBlock(int x, int y) {
   if (vis_[x][y]) return;
@@ -142,11 +139,11 @@ void Reaper::Print() {
   int n = game_->row();
   int m = game_->col();
   for (int i = 0; i < n; i++) {
-  for (int j = 0; j < m; j++) {
-    std::cerr << p[i][j] << " ";
+    for (int j = 0; j < m; j++) {
+      std::cerr << p[i][j] << " ";
+    }
+    std::cerr << std::endl;
   }
-  std::cerr << std::endl;
-  } 
-    
+
   return;
 }
