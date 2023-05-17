@@ -106,11 +106,13 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
   mines_.clear();
   vis_ = std::vector<std::vector<bool>>(n_, std::vector<bool>(m_, false));
   // std::cerr << "--------------------------------" << std::endl;
-  std::vector<std::vector<double>> res(n_, std::vector<double>(m_, 0.0));
+  std::vector<std::vector<double>> res(n_, std::vector<double>(m_, 100.0));
+  int totunreveal = n_ * m_;
   for (int i = 0; i < n_; i++) {
     for (int j = 0; j < m_; j++) {
-      if (vis_[i][j]) continue;
       auto now = game_->GetCell(game::Coord(i, j));
+      if (now.revealed and now.number != 9) totunreveal--;
+      if (vis_[i][j]) continue;
       if (now.revealed && now.number != 9) {
         // std::cout << i << " " << j << std::endl;
         tot_situations_ = 0;
@@ -121,6 +123,7 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
         cnt_ = std::vector<std::vector<int>>(n_, std::vector<int>(m_, 0));
         tot_ = std::vector<std::vector<int>>(n_, std::vector<int>(m_, 0));
         GetBlock(i, j);
+        totunreveal -= borders_.size();
         Dfs(0);
         // std::cout << borders_.size() << std::endl;
         // std::cout << tot_situations_ << std::endl;
