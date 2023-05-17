@@ -55,7 +55,7 @@ void Reaper::GetBlock(int x, int y) {
 
 void Reaper::Dfs(int t) {
   if (t >= borders_.size()) {
-    // std::cout << "t:" << t << " sum: " << sum << std::endl;
+    // std::cerr << "t:" << t << " sum: " << sum << std::endl;
     // int tmp = 0;
     // for (int u : mines_) {
     //   if (borders_[u].x + 1 == 3 and borders_[u].y + 1 == 1) {
@@ -66,9 +66,9 @@ void Reaper::Dfs(int t) {
     //   }
     // }
     // if (tmp == 2) {
-    //   std::cout << "t:" << t << " sum: " << sum << std::endl;
+    //   std::cerr << "t:" << t << " sum: " << sum << std::endl;
     //   for (int u : mines_) {
-    //     std::cout << borders_[u].x + 1 << " " << borders_[u].y + 1 <<
+    //     std::cerr << borders_[u].x + 1 << " " << borders_[u].y + 1 <<
     //     std::endl;
     //   }
     // }
@@ -90,7 +90,7 @@ void Reaper::Dfs(int t) {
     if (IsValidCoord(pos)) {
       auto now = game_->GetCell(pos);
       if (now.revealed and now.number != 9) {
-        // std::cout << xx << " " << yy << std::endl;
+        // std::cerr << xx << " " << yy << std::endl;
         cnt_[xx][yy]++;
         if (cnt_[xx][yy] == now.number) sum_++;
         if (cnt_[xx][yy] > now.number) valid = false;
@@ -106,7 +106,7 @@ void Reaper::Dfs(int t) {
     if (IsValidCoord(pos)) {
       auto now = game_->GetCell(pos);
       if (now.revealed and now.number != 9) {
-        // std::cout << xx << " " << yy << std::endl;
+        // std::cerr << xx << " " << yy << std::endl;
         if (cnt_[xx][yy] == now.number) sum_--;
         cnt_[xx][yy]--;
       }
@@ -133,7 +133,7 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
       }
       if (vis_[i][j]) continue;
       if (now.revealed && now.number != 9) {
-        // std::cout << i << " " << j << std::endl;
+        // std::cerr << i << " " << j << std::endl;
         tot_situations_ = 0;
         block_size_ = 0;
         sum_ = 0;
@@ -144,9 +144,9 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
         GetBlock(i, j);
         tot_unreavealed -= borders_.size();
         Dfs(0);
-        // std::cout << borders_.size() << std::endl;
-        // std::cout << tot_situations_ << std::endl;
-        // std::cout << blocksize << std::endl;
+        // std::cerr << borders_.size() << std::endl;
+        // std::cerr << tot_situations_ << std::endl;
+        // std::cerr << blocksize << std::endl;
         for (auto u : borders_) {
           if (tot_[u.x][u.y] == tot_situations_) tot_mines--;
           res[u.x][u.y] = (double)tot_[u.x][u.y] / tot_situations_;
@@ -160,8 +160,8 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
       if (res[i][j] > 1.0) pp++, res[i][j] = 1.0 * tot_mines / tot_unreavealed;
     }
   }
-  std::cout << tot_mines << std::endl;
-  std::cout << pp << " " << tot_unreavealed << std::endl;
+  std::cerr << tot_mines << std::endl;
+  std::cerr << pp << " " << tot_unreavealed << std::endl;
   return res;
 }
 
