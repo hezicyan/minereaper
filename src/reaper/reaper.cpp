@@ -23,7 +23,6 @@ bool Reaper::IsValidCoord(const game::Coord& pos) const {
   return pos.x >= 0 && pos.x < n_ && pos.y >= 0 && pos.y < m_;
 }
 
-int blocksize;
 void Reaper::GetBlock(int x, int y) {
   if (vis_[x][y]) return;
   vis_[x][y] = true;
@@ -32,7 +31,7 @@ void Reaper::GetBlock(int x, int y) {
     borders_.push_back(game::Coord(x, y));
     return;
   }
-  if (now.number != 0) blocksize++;
+  if (now.number != 0) block_size_++;
   for (auto p : game::kAdjDirs) {
     int xx = x + p.first;
     int yy = y + p.second;
@@ -42,7 +41,6 @@ void Reaper::GetBlock(int x, int y) {
   }
 }
 
-int sum;
 void Reaper::Dfs(int t) {
   if (t >= borders_.size()) {
     // std::cout << "t:" << t << " sum: " << sum << std::endl;
@@ -63,7 +61,7 @@ void Reaper::Dfs(int t) {
     //   }
     // }
 
-    if (sum != blocksize) return;
+    if (sum_ != block_size_) return;
     for (int u : mines_) {
       tot_[borders_[u].x][borders_[u].y]++;
     }
@@ -82,7 +80,7 @@ void Reaper::Dfs(int t) {
       if (now.revealed and now.number != 9) {
         // std::cout << xx << " " << yy << std::endl;
         cnt_[xx][yy]++;
-        if (cnt_[xx][yy] == now.number) sum++;
+        if (cnt_[xx][yy] == now.number) sum_++;
         if (cnt_[xx][yy] > now.number) valid = false;
       }
     }
@@ -97,7 +95,7 @@ void Reaper::Dfs(int t) {
       auto now = game_->GetCell(pos);
       if (now.revealed and now.number != 9) {
         // std::cout << xx << " " << yy << std::endl;
-        if (cnt_[xx][yy] == now.number) sum--;
+        if (cnt_[xx][yy] == now.number) sum_--;
         cnt_[xx][yy]--;
       }
     }
@@ -110,34 +108,35 @@ void Reaper::Dfs(int t) {
 std::vector<std::vector<double>> Reaper::GetPossibility() {
   mines_.clear();
   vis_ = std::vector<std::vector<bool>>(n_, std::vector<bool>(m_, false));
+
   // std::cerr << "--------------------------------" << std::endl;
   std::vector<std::vector<double>> res(n_, std::vector<double>(m_, 100.0));
-  int totunreveal = n_ * m_, totmines = game_->mine_count();
+  int tot_unreavealed = n_ * m_, tot_mines = game_->mine_count();
   for (int i = 0; i < n_; i++) {
     for (int j = 0; j < m_; j++) {
       auto now = game_->GetCell(game::Coord(i, j));
       if (now.revealed and now.number != 9) {
-        totunreveal--;
+        tot_unreavealed--;
         res[i][j] = 0.0;
       }
       if (vis_[i][j]) continue;
       if (now.revealed && now.number != 9) {
         // std::cout << i << " " << j << std::endl;
         tot_situations_ = 0;
-        blocksize = 0;
-        sum = 0;
+        block_size_ = 0;
+        sum_ = 0;
         blocks_.clear();
         borders_.clear();
         cnt_ = std::vector<std::vector<int>>(n_, std::vector<int>(m_, 0));
         tot_ = std::vector<std::vector<int>>(n_, std::vector<int>(m_, 0));
         GetBlock(i, j);
-        totunreveal -= borders_.size();
+        tot_unreavealed -= borders_.size();
         Dfs(0);
         // std::cout << borders_.size() << std::endl;
         // std::cout << tot_situations_ << std::endl;
         // std::cout << blocksize << std::endl;
         for (auto u : borders_) {
-          if (tot_[u.x][u.y] == tot_situations_) totmines--;
+          if (tot_[u.x][u.y] == tot_situations_) tot_mines--;
           res[u.x][u.y] = (double)tot_[u.x][u.y] / tot_situations_;
         }
       }
@@ -146,7 +145,7 @@ std::vector<std::vector<double>> Reaper::GetPossibility() {
   int pp = 0;
   for (int i = 0; i < n_; i++) {
     for (int j = 0; j < m_; j++) {
-      if (res[i][j] > 1.0) pp++, res[i][j] = 1.0 * totmines / totunreveal;
+      if (res[i][j] > 1.0) pp++, res[i][j] = 1.0 * tot_mines / tot_unreavealed;
     }
   }
   // std::cout << totmines << std::endl;
