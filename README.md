@@ -4,11 +4,18 @@ This project aims to implement an intelligent AI of [Minesweeper](https://en.wik
 
 Cooperated with [zyx02](https://github.com/zyx02).
 
-## (Expected) Features
+## Features
 
-- Simple Minesweeper gaming in command line interface  -- **DONE**
-- Calculate the probability that each cell in the current situation is mine  -- **WROKING**
-- AI automatically completes minesweeping  -- **WORKING**
+- Simple Minesweeper gaming in command line interface
+- Calculate the probability that each cell in the current situation is mine
+- AI automatically completes minesweeping (currently only for Beginner's level)
+
+## TODO List
+
+- Optimize the algorithm of probability calculating
+- Implement a new method to calculate the porbability that each cell is an openning
+- Implement a new method to calculate the expectation of winning after revealing a cell
+- Optimize the gready algorithm using the above
 
 ## Compilation
 
