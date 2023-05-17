@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <fstream>
 #include <iostream>
 
 #include "game/game.h"
@@ -19,19 +20,24 @@ void ShowHelp(int code = 0) {
 
 void ShowVersion() {
   // TODO: version page
-  std::cout << "VERSION" << std::endl;
+  std::ifstream ver("../VERSION");
+  if (ver.fail()) {
+    std::cerr << "No VERSION file exsits" << std::endl;
+    exit(2);
+  }
+  std::string line;
+  while (std::getline(ver, line)) {
+    std::cout << line << std::endl;
+  }
   exit(0);
 }
 
 int main(int argc, char** argv) {
-  std::cerr << "START RUNNING" << std::endl;
-
   int n = kN, m = kM, mine = kMine, cases = kCases;
   int cnt = 0, args[3];
 
   try {
     for (int i = 1; i < argc; ++i) {
-      std::cout << "PARSING: " << argv[i] << std::endl;
       if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
         ShowVersion();
       } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
