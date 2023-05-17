@@ -18,6 +18,7 @@ class Reaper {
   std::vector<game::Coord> borders_;
   std::vector<game::Coord> blocks_;
   std::vector<int> mines_;
+  int sum_, block_size_;
 
   bool IsValidCoord(const game::Coord& pos) const;
   bool OnCorner(const game::Coord& pos) const;

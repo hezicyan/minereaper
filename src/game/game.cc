@@ -19,6 +19,7 @@ Game::~Game() { delete board_; }
 
 int Game::row() const { return board_->row(); }
 int Game::col() const { return board_->col(); }
+int Game::mine_count() const { return board_->mine_count(); }
 
 void Game::Setup(const int& n, const int& m, const int& mine) {
   std::cerr << "START SETUP: " << n << 'x' << m << ' ' << mine << std::endl;
@@ -54,6 +55,7 @@ Game::Board::~Board() {}
 
 int Game::Board::row() const { return n_; }
 int Game::Board::col() const { return m_; }
+int Game::Board::mine_count() const { return mine_; }
 int Game::Board::cur_3bv() const { return cur_3bv_; }
 int Game::Board::tot_3bv() const { return tot_3bv_; }
 int Game::Board::step_count() const { return step_count_; }

@@ -32,6 +32,7 @@ class Game {
 
   int row() const;
   int col() const;
+  int mine_count() const;
 
   void Setup(const int& n, const int& m, const int& mine);
   bool CheckWin() const;
@@ -77,6 +78,7 @@ class Game::Board {
 
   int row() const;
   int col() const;
+  int mine_count() const;
   int cur_3bv() const;
   int tot_3bv() const;
   int step_count() const;
